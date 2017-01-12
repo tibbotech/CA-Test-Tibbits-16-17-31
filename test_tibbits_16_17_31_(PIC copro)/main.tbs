@@ -1,0 +1,252 @@
+include "global.tbh"
+
+'This is the test string used for serial port testing
+Const SER_TEST_STR="12345678901234567890123456789012345678901234567890123456789012345678901234567!#"
+
+'This is the list of test cases available in this application
+enum test_modes
+	TEST_IO,				'All lines used as general-purpose IOs.
+	TEST_PWM_1,				'All three PWM channels enabled, each one running at its own frequency and duty cycle.
+	TEST_PWM_2,				'All three PWM channels enabled, set to the same frequency, and have their duty cycles repeatedly change between 0 and 100%.
+	
+							'ADC tests: all four ADC inputs are enabled, measurement results are printed with sys.debugprint
+	
+	TEST_ADC_REF_VCC,		'Reference set to VCC (5V nominal). This gives you the widest range but makes the measurement ratiometric with respect to the VCC.
+	TEST_ADC_REF_2048mV,	'Internal bandgap reference enabled, the range is 0-2048mV. Measurements in this mode are much less susceptible to VCC fluctuations.	
+	TEST_ADC_REF_4096mV,	'Internal bandgap reference enabled, the range is 0-4096mV. Measurements in this mode are much less susceptible to VCC fluctuations.
+	
+	#if PLATFORM_ID=TPP3W or PLATFORM_ID=TPP2W or PLATFORM_ID=TPP3WG2 or PLATFORM_ID=TPP2WG2	'UART mode is only available for Tibbit #31. Not supported on EM1000LEV devices.
+		TEST_UART_1,		'Loopback test between the TX and RX lines of the PIC micro.
+		TEST_UART_2			'Loopback test between the TX/RX of the PIC micro and TX/RX of the TPP2's own SER2(1).
+	#endif
+end enum
+
+dim test_item as test_modes
+
+'====================================================================
+sub on_sys_init()
+
+	' This is  a demo for  EM1000LEV and Tibbit co-processor
+	dim buf as string(1)
+	dim s as string
+	dim f as byte=0
+	dim i as word
+	dim adc1, adc2, adc3, adc4 as word
+
+#if PLATFORM_ID=EM1000W
+	dim adc5,adc6 as word
+#endif
+
+	select case pic_init(YES, s)
+	case PIC_NG:
+		sys.debugprint("SSI channel could not be allocated, using bit banging instead."+CR_LF)
+		
+	case PIC_REJ:
+		sys.debugprint("The CPU clock is too slow for the SSI to be used. Bit banging used instead."+CR_LF)
+
+	case PIC_FWNG:
+		if s="" then s="<No version string returned>"
+		sys.debugprint("PIC firmware version mismatch or PIC not present."+CR_LF)
+		sys.debugprint("PIC reported this firmware version: "+s+CR_LF)
+		sys.debugprint("This application expects the following firmware: "+EXPECTED_PIC_FIRMWARE_V+".XX"+CR_LF)
+		sys.halt
+	end select
+
+	test_item=TEST_IO'<<====================================== SELECT DESIRED TEST CASE HERE
+
+	select case test_item
+	case TEST_IO:
+	#if PLATFORM_ID=TPP3W or PLATFORM_ID=TPP2W or PLATFORM_ID=TPP3WG2 or PLATFORM_ID=TPP2WG2
+		signal_strength_indication_init()
+	#endif
+		pic_config(PIC_PIN0,PIC_FUNC_IO)
+		pic_io_enabled(PIC_PIN0,YES)
+
+		pic_config(PIC_PIN1,PIC_FUNC_IO)
+		pic_io_enabled(PIC_PIN1,YES)
+
+		pic_config(PIC_PIN2,PIC_FUNC_IO)
+		pic_io_enabled(PIC_PIN2,YES)
+
+		pic_config(PIC_PIN3,PIC_FUNC_IO)
+		pic_io_enabled(PIC_PIN3,YES)
+
+	#if PLATFORM_ID=EM1000W
+		pic_config(PIC_PIN4,PIC_FUNC_IO)
+		pic_io_enabled(PIC_PIN4,YES)
+		pic_config(PIC_PIN5,PIC_FUNC_IO)
+		pic_io_enabled(PIC_PIN5,YES)
+	#endif
+
+		while 1
+			if pic_io_get(PIC_PIN0)=LOW then
+				pic_io_set(PIC_PIN0,HIGH)
+			else	
+				pic_io_set(PIC_PIN0,LOW)
+				if pic_io_get(PIC_PIN1)=LOW then
+					pic_io_set(PIC_PIN1,HIGH)
+				else
+					pic_io_set(PIC_PIN1,LOW)
+					if pic_io_get(PIC_PIN2)=LOW then
+						pic_io_set(PIC_PIN2,HIGH)
+					else	
+						pic_io_set(PIC_PIN2,LOW)
+						if pic_io_get(PIC_PIN3)=LOW then
+							pic_io_set(PIC_PIN3,HIGH)
+						else	
+							pic_io_set(PIC_PIN3,LOW)
+							#if PLATFORM_ID=EM1000W or PLATFORM_ID=EM1000
+								if pic_io_get(PIC_PIN4)=LOW then
+									pic_io_set(PIC_PIN4,HIGH)
+								else	
+									pic_io_set(PIC_PIN4,LOW)
+									if pic_io_get(PIC_PIN5)=LOW then
+										pic_io_set(PIC_PIN5,HIGH)
+									else	
+										pic_io_set(PIC_PIN5,LOW)
+									end if
+								end if
+							#endif
+						end if
+					end if
+				end if
+
+			end if
+		wend
+	
+	case TEST_PWM_1:
+		pic_config(PIC_PIN0,PIC_FUNC_PWM)
+		pic_config(PIC_PIN1,PIC_FUNC_PWM)
+		pic_config(PIC_PIN2,PIC_FUNC_PWM)
+		pic_pwm_config(PIC_PWM0,900,1024,PIC_PRE_1)
+		pic_pwm_config(PIC_PWM1,300,500,PIC_PRE_16)
+		pic_pwm_config(PIC_PWM2,300,1000,PIC_PRE_64)
+		while 1
+		wend
+	
+	case TEST_PWM_2:
+		pic_config(PIC_PIN0,PIC_FUNC_PWM)
+		pic_config(PIC_PIN1,PIC_FUNC_PWM)
+		pic_config(PIC_PIN2,PIC_FUNC_PWM)
+		pic_pwm_config(PIC_PWM0,0,1000,PIC_PRE_64)
+		pic_pwm_config(PIC_PWM1,0,1000,PIC_PRE_64)
+		pic_pwm_config(PIC_PWM2,0,1000,PIC_PRE_64)
+		
+		while 1	
+			i=0
+			while i<1000
+				pic_pwm_duty(1000-i,i,0)
+				i=i+25
+			wend
+
+			i=0
+			while i<1000
+				pic_pwm_duty(0,1000-i,i)
+				i=i+25
+			wend
+
+			i=0
+			while i<1000
+				pic_pwm_duty(i,0,1000-i)
+				i=i+25
+			wend
+		wend
+
+	case TEST_ADC_REF_VCC,TEST_ADC_REF_2048mV,TEST_ADC_REF_4096mV:
+		pic_config(PIC_PIN0,PIC_FUNC_ADC)
+		pic_config(PIC_PIN1,PIC_FUNC_ADC)
+		pic_config(PIC_PIN2,PIC_FUNC_ADC)
+		pic_config(PIC_PIN3,PIC_FUNC_ADC)
+		#if PLATFORM_ID=EM1000W or PLATFORM_ID=EM1000
+			if test_item<>TEST_ADC_REF_EXT then
+				pic_config(PIC_PIN4,PIC_FUNC_ADC)
+				pic_config(PIC_PIN5,PIC_FUNC_ADC)
+			end if
+		#endif
+		
+		select case test_item
+		case TEST_ADC_REF_VCC:
+			pic_adc_config(PIC_PREF_SOURCE_VDD,PIC_NREF_SOURCE_VSS,PIC_ADC_FVR_REF_OFF)
+			
+		case TEST_ADC_REF_2048mV:
+			pic_adc_config(PIC_PREF_SOURCE_FVR_BUF,PIC_NREF_SOURCE_VSS,PIC_ADC_FVR_REF_2048mV)
+			
+		case TEST_ADC_REF_4096mV:
+			pic_adc_config(PIC_PREF_SOURCE_FVR_BUF,PIC_NREF_SOURCE_VSS,PIC_ADC_FVR_REF_4096mV)
+			
+		end select
+		
+		while 1	
+			adc1=pic_adc_get_mv(PIC_ADC0)
+			adc2=pic_adc_get_mv(PIC_ADC1)
+			adc3=pic_adc_get_mv(PIC_ADC2)
+			adc4=pic_adc_get_mv(PIC_ADC3)
+			#if PLATFORM_ID=EM1000W or PLATFORM_ID=EM1000
+				adc5=pic_adc_get_mv(PIC_ADC4)
+				adc6=pic_adc_get_mv(PIC_ADC5)
+				sys.debugprint("CH0: "+str(adc1)+"mV CH1: "+str(adc2)+"mV CH2: "+str(adc3)+"mV CH3: "+str(adc4)+"mV CH4: "+str(adc5)+"mV CH5: "+str(adc6)+"mV"+CR_LF)
+			#else
+				sys.debugprint("CH0: "+str(adc1)+"mV CH1: "+str(adc2)+"mV CH2: "+str(adc3)+"mV CH3: "+str(adc4)+"mV"+CR_LF)
+			#endif
+		wend
+
+#if PLATFORM_ID=TPP3W or PLATFORM_ID=TPP3WG2 or PLATFORM_ID=TPP2W or PLATFORM_ID=TPP2WG2
+	case TEST_UART_1:
+		pic_config(PIC_PIN0,PIC_FUNC_UART)
+		pic_config(PIC_PIN1,PIC_FUNC_UART)
+		pic_ser_config(PIC_BRATE_57600,PIC_PARITY_NONE,YES)
+		while 1
+			pic_ser_setsend(SER_TEST_STR)
+			while pic_ser_txlen()<>0
+			wend
+
+			while io.lineget(PIC_INT_PIN)=HIGH
+			wend
+			s=pic_ser_get()
+			sys.debugprint(s+CR_LF)
+			if s<>SER_TEST_STR then sys.halt
+		wend
+
+	case TEST_UART_2:	
+		pic_config(PIC_PIN0,PIC_FUNC_UART)
+		pic_config(PIC_PIN1,PIC_FUNC_UART)
+		pic_ser_config(PIC_BRATE_57600,PIC_PARITY_EVEN,YES)
+
+		const DIV_57600=6
+		ser.num=1
+		ser.enabled=NO
+		ser.txbuffrq(1)
+		ser.rxbuffrq(1)
+		sys.buffalloc
+		ser.parity=PL_SER_PR_EVEN
+		ser.baudrate=ser.div9600/DIV_57600
+		ser.enabled=YES
+
+		ser.setdata(SER_TEST_STR)
+		ser.send
+
+		while 1
+			dim x as byte
+			x=pic_ser_rxlen()
+			
+			if io.lineget(PIC_INT_PIN)=LOW and x>=len(SER_TEST_STR) then
+				s=pic_ser_get()
+				sys.debugprint("PIC RX: "+s+CR_LF)
+				if s<>SER_TEST_STR then sys.halt
+				pic_ser_setsend(s)
+				while pic_ser_txlen()<>0
+				wend
+			end if
+			if ser.rxlen>=len(SER_TEST_STR) then
+				s=ser.getdata(len(SER_TEST_STR))
+				sys.debugprint("TPP RX: "+s+CR_LF)
+				if s<>SER_TEST_STR then sys.halt
+				ser.setdata(s)
+				ser.send
+			end if
+		wend
+#endif
+
+	end select
+end sub
+

@@ -1,0 +1,43 @@
+include "global.tbh"
+
+'====================================================================
+sub signal_strength_indication_init()
+	dim f as byte
+	
+	'make sure there is no reset
+	io.num=PL_IO_NUM_46
+	io.enabled=YES
+	io.state=HIGH
+
+	'we will be turning LEDs off
+	io.num=PL_IO_NUM_48
+	io.enabled=YES
+	io.state=HIGH
+	'make 5 clocks
+	io.num=PL_IO_NUM_47
+	io.enabled=YES
+	for f=0 to 4
+		io.state=LOW
+		io.state=HIGH
+	next f
+end sub
+
+sub signal_strength_set(strength as byte)
+'Bits 0-5 of strength argument correspond to LEDs	
+	
+	dim f,x as byte
+	dim s as string(8)
+	
+	s=mid(bin(strength),3,8)
+	s=strgen(8-len(s),"0")+s	
+	
+	'make 5 clocks
+	io.num=PL_IO_NUM_47
+	for f=0 to 4
+		x=1-val(mid(s,f+4,1))
+		io.lineset(PL_IO_NUM_48,x)
+		io.state=LOW
+		io.state=HIGH
+	next f
+end sub
+

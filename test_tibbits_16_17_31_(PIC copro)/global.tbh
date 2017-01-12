@@ -1,0 +1,24 @@
+'DEFINES-------------------------------------------------------------
+#if PLATFORM_ID=TPP3W or PLATFORM_ID=TPP2W or PLATFORM_ID=TPP2WG2 or PLATFORM_ID=TPP3WG2
+	#define PIC_CLK_PIN PL_IO_NUM_9_TX0
+	#define PIC_DATA_PIN PL_IO_NUM_8_RX0
+	#define PIC_RST_PIN PL_IO_NUM_0
+	#define PIC_INT_PIN PL_IO_NUM_16_INT0
+#elif PLATFORM_ID=EM1000W
+	#define PIC_CLK_PIN PL_IO_NUM_54
+	#define PIC_DATA_PIN PL_IO_NUM_55
+	#define PIC_RST_PIN PL_IO_NUM_48
+	#define PIC_INT_PIN PL_IO_NUM_47
+#endif
+
+const CR_LF=chr(13)+chr(10)
+
+'INCLUDES------------------------------------------------------------
+include "super_i2c.tbh"
+include "ssi\trunk\ssi.tbh"
+include "PIC_HAL.tbh"
+include "pic_gra.tbh"
+
+'DECLARATIONS--------------------------------------------------------
+declare sub signal_strength_indication_init()
+declare sub signal_strength_set(strength as byte)
