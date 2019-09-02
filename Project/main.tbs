@@ -15,7 +15,7 @@ enum test_modes
 	TEST_ADC_REF_2048mV,	'Internal bandgap reference enabled, the range is 0-2048mV. Measurements in this mode are much less susceptible to VCC fluctuations.	
 	TEST_ADC_REF_4096mV,	'Internal bandgap reference enabled, the range is 0-4096mV. Measurements in this mode are much less susceptible to VCC fluctuations.
 	
-	#if PLATFORM_ID=TPP3W or PLATFORM_ID=TPP2W or PLATFORM_ID=TPP3WG2 or PLATFORM_ID=TPP2WG2	'UART mode is only available for Tibbit #31. Not supported on EM1000LEV devices.
+	#if PLATFORM_ID=TPP3W or PLATFORM_ID=TPP2W  or PLATFORM_ID=TPP2N or PLATFORM_ID=TPP3WG2  or PLATFORM_ID=TPP3N or PLATFORM_ID=TPP2WG2	'UART mode is only available for Tibbit #31. Not supported on EM1000LEV devices.
 		TEST_UART_1,		'Loopback test between the TX and RX lines of the PIC micro.
 		TEST_UART_2			'Loopback test between the TX/RX of the PIC micro and TX/RX of the TPP2's own SER2(1).
 	#endif
