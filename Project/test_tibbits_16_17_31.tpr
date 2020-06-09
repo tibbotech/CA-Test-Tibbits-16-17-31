@@ -1,128 +1,112 @@
 [project]
-version = 1
-platform = TPP3W(G2)
-src_lib_ver = 2_01_03
-name = test_tibbits_16_17_31
-output = test_tibbits_16_17_31.tpc
-debug = on
-defines = /dLCD_TYPE=SOLOMON_SSD1963 /dOBJECT_LCD=LCD_ENABLED /dOBJECT_FD=FD_ENABLED /dOBJECT_KP=KP_ENABLED /dOBJECT_WLN=WLN_ENABLED
-transport = udp_winpcap
-
+version=1
+platform=TPP3W(G2)
+src_lib_ver=2_01_04
+name=test_tibbits_16_17_31
+output=test_tibbits_16_17_31.tpc
+debug=on
+defines= /dLCD_TYPE=SOLOMON_SSD1963 /dOBJECT_LCD=LCD_ENABLED /dOBJECT_FD=FD_ENABLED /dOBJECT_KP=KP_ENABLED /dOBJECT_WLN=WLN_ENABLED
+transport=udp_winpcap
 [address1]
-platform = TPP2W
-transport = udp_winpcap
-address = 0.36.119.81.102.106
-
+platform=TPP2W
+transport=udp_winpcap
+address=0.36.119.81.102.106
 [address2]
-platform = TPP3W
-transport = udp_winpcap
-address = 0.10.22.52.85.37
-
+platform=TPP3W
+transport=udp_winpcap
+address=0.10.22.52.85.37
 [address3]
-platform = EM1000
-transport = udp_winpcap
-address = 
-
+platform=EM1000
+transport=udp_winpcap
+address=
 [address4]
-platform = EM1000W
-transport = udp_winpcap
-address = 0.127.0.0.44.21
-
+platform=EM1000W
+transport=udp_winpcap
+address=0.127.0.0.44.21
 [address5]
-platform = TPP2W(G2)
-transport = udp_winpcap
-address = 0.36.119.81.102.106
-
+platform=TPP2W(G2)
+transport=udp_winpcap
+address=0.36.119.81.102.106
 [address6]
-platform = TPP2N
-transport = udp_winpcap
-address = 0.36.119.81.102.106
-
+platform=TPP2N
+transport=udp_winpcap
+address=0.36.119.81.102.106
+[address7]
+platform=TPP3W(G2)
+transport=udp_winpcap
+address=
 [file1]
-path = main.tbs
-type = basic
-format = 
-condition = 
-locked = no
-location = 
-
+path=main.tbs
+type=basic
+format=
+condition=
+locked=no
+location=
 [file2]
-path = global.tbh
-type = header
-format = 
-condition = 
-locked = no
-location = 
-
+path=global.tbh
+type=header
+format=
+condition=
+locked=no
+location=
 [file3]
-path = device.tbs
-type = basic
-format = 
-condition = 
-locked = no
-location = 
-
+path=device.tbs
+type=basic
+format=
+condition=
+locked=no
+location=
 [file4]
-path = PIC_HAL.tbh
-type = header
-format = 
-condition = 
-locked = no
-location = project
-
+path=PIC_HAL.tbh
+type=header
+format=
+condition=
+locked=no
+location=project
 [file5]
-path = super_i2c.tbh
-type = header
-format = 
-condition = 
-locked = no
-location = project
-
+path=ssi\trunk\ssi.tbh
+type=header
+format=
+condition=
+locked=yes
+location=commonlib
 [file6]
-path = super_i2c.tbs
-type = basic
-format = 
-condition = 
-locked = no
-location = project
-
+path=ssi\trunk\ssi.tbs
+type=basic
+format=
+condition=
+locked=yes
+location=commonlib
 [file7]
-path = ssi\trunk\ssi.tbh
-type = header
-format = 
-condition = 
-locked = yes
-location = commonlib
-
+path=PIC_HAL.tbs
+type=basic
+format=
+condition=
+locked=no
+location=project
 [file8]
-path = ssi\trunk\ssi.tbs
-type = basic
-format = 
-condition = 
-locked = yes
-location = commonlib
-
+path=pic_gra.tbh
+type=header
+format=
+condition=
+locked=no
+location=project
 [file9]
-path = PIC_HAL.tbs
-type = basic
-format = 
-condition = 
-locked = no
-location = project
-
+path=pic_gra.tbs
+type=basic
+format=
+condition=
+locked=no
+location=project
 [file10]
-path = pic_gra.tbh
-type = header
-format = 
-condition = 
-locked = no
-location = project
-
+path=super_i2c\trunk\super_i2c.tbh
+type=header
+format=65001
+locked=yes
+location=commonlib
 [file11]
-path = pic_gra.tbs
-type = basic
-format = 
-condition = 
-locked = no
-location = project
-
+path=super_i2c\trunk\super_i2c.tbs
+type=basic
+format=65001
+locked=yes
+location=commonlib

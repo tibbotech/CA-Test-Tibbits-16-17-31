@@ -70,12 +70,7 @@ function pic_init(use_ssi as no_yes, byref fw_str as string)as pic_result_enum
 	if i2c_num_pic<4 then
 		ssi.channel=i2c_num_pic
 		ssi.enabled=NO
-		#IF PLATFORM_ID=TPP2WG2 or PLATFORM_ID=TPP3WG2
-			ssi.baudrate=105
-		#ELIF PLATFORM_ID=TPP2W or PLATFORM_ID=TPP3W
-			ssi.baudrate=100
-		#ENDIF
-
+		ssi.baudrate=PL_SSI_BAUDRATES_100kHz
 		ssi.clkmap=PIC_CLK_PIN
 		ssi.dimap=PIC_DATA_PIN
 		ssi.domap=PIC_DATA_PIN
